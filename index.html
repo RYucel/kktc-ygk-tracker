@@ -51,33 +51,70 @@
     </div>
 
     <p id="footer" class="text-center text-xs text-gray-500 mt-10"></p>
+    <div id="debugInfo" class="text-xs text-gray-400 mt-4 text-center"></div>
   </div>
 
   <script>
-    const PROXY = "https://corsproxy.io/?";
-    const URL = "https://basimevi.gov.ct.tr/";
+    const PROXIES = [
+      "https://api.codetabs.com/v1/proxy?quest=",     // En stabil şu anda
+      "https://corsproxy.io/?",
+      "https://api.allorigins.win/raw?url="
+    ];
+
+    const TARGET_URL = "https://basimevi.gov.ct.tr/";
+
+    async function tryProxy(proxy) {
+      const fullUrl = proxy + encodeURIComponent(TARGET_URL);
+      console.log(`[DEBUG] Denenen proxy: ${proxy}`);
+      
+      const res = await fetch(fullUrl, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; KKTC-YGK-Tracker/1.0)' },
+        signal: AbortSignal.timeout(15000)
+      });
+      
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.text();
+    }
 
     async function loadData() {
       const loading = document.getElementById('loading');
       const container = document.getElementById('tableContainer');
       const tbody = document.getElementById('tbody');
       const summary = document.getElementById('summary');
+      const debugInfo = document.getElementById('debugInfo');
       
       tbody.innerHTML = '';
       loading.classList.remove('hidden');
       container.classList.add('hidden');
+      debugInfo.textContent = 'Proxy deneniyor...';
+
+      let html = null;
+      let usedProxy = null;
+
+      for (const proxy of PROXIES) {
+        try {
+          html = await tryProxy(proxy);
+          usedProxy = proxy;
+          console.log(`✅ Başarılı proxy: ${proxy}`);
+          break;
+        } catch (e) {
+          console.log(`❌ Proxy başarısız: ${proxy} → ${e.message}`);
+          debugInfo.textContent = `Proxy deneniyor... (${PROXIES.indexOf(proxy)+1}/${PROXIES.length})`;
+        }
+      }
+
+      if (!html) {
+        loading.innerHTML = `
+          <span class="text-red-600 block mb-4">Tüm proxy'ler başarısız oldu.</span>
+          <button onclick="loadData()" class="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700">Tekrar Dene</button>
+          <p class="text-xs mt-6">Tarayıcı konsolunu aç (F12) ve detayları gör.</p>
+        `;
+        return;
+      }
 
       try {
-        const res = await fetch(PROXY + encodeURIComponent(URL), {
-          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; YGK-Tracker)' }
-        });
-
-        if (!res.ok) throw new Error('Siteye ulaşılamadı (proxy hatası)');
-
-        const html = await res.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-
         const table = doc.querySelector('table');
         if (!table) throw new Error('Tablo bulunamadı');
 
@@ -119,6 +156,7 @@
 
         data.sort((a, b) => new Date(b.date.split('.').reverse().join('-')) - new Date(a.date.split('.').reverse().join('-')));
 
+        // Tabloyu doldur
         data.forEach(item => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
@@ -128,9 +166,7 @@
             <td class="px-6 py-4 text-center font-mono">${item.passed}</td>
             <td class="px-6 py-4 text-center font-bold ${item.left > 0 ? 'text-green-600' : 'text-red-600'}">${item.left}</td>
             <td class="px-6 py-4 text-center">
-              <span class="inline-block px-5 py-1 rounded-full text-xs font-semibold ${item.left > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-                ${item.status}
-              </span>
+              <span class="inline-block px-5 py-1 rounded-full text-xs font-semibold ${item.left > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${item.status}</span>
             </td>
             <td class="px-6 py-4 text-center">
               <a href="${item.pdf}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center gap-1">
@@ -160,17 +196,13 @@
         loading.classList.add('hidden');
         container.classList.remove('hidden');
         document.getElementById('footer').innerHTML = 
-          `Son güncelleme: ${new Date().toLocaleString('tr-TR')} • Toplam ${data.length} kararname`;
+          `Son güncelleme: ${new Date().toLocaleString('tr-TR')} • Kullanılan proxy: ${usedProxy.split('/')[2]}`;
+
+        debugInfo.textContent = `✅ ${data.length} kararname yüklendi (proxy: ${usedProxy.split('/')[2]})`;
 
       } catch (err) {
         console.error(err);
-        loading.innerHTML = `
-          <span class="text-red-600 block mb-4">Hata: ${err.message}</span>
-          <button onclick="loadData()" class="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700">
-            Tekrar Dene
-          </button>
-          <p class="text-xs text-gray-500 mt-6">Proxy sorunu devam ederse Vercel projesini silip yeniden deploy edin.</p>
-        `;
+        loading.innerHTML = `<span class="text-red-600">HTML parse hatası: ${err.message}</span>`;
       }
     }
 
