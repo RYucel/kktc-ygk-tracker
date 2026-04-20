@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KKTC YGK 90 Gün Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    table { border-collapse: collapse; }
+    tr:hover { background-color: #f8fafc; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="max-w-7xl mx-auto p-6">
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-4xl font-bold text-blue-700 flex items-center gap-3">
+          ???? KKTC Yasa Gücünde Kararnameler
+          <span class="text-2xl">90 Gün Tracker</span>
+        </h1>
+        <p class="text-gray-600 mt-2">Kaynak: <a href="https://basimevi.gov.ct.tr/" target="_blank" class="underline">basimevi.gov.ct.tr</a> • Anayasa Mahkemesi karariyla 90 günde Meclis’te görüsülmezse <strong>hükümsüz</strong></p>
+      </div>
+      <button onclick="loadData()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 font-medium">
+        <i class="fas fa-sync"></i> Yenile
+      </button>
+    </div>
+
+    <div id="summary" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8"></div>
+
+    <div id="loading" class="text-center py-12 text-gray-500">Veriler çekiliyor...</div>
+    <div id="tableContainer" class="hidden">
+      <table class="w-full bg-white shadow-xl rounded-2xl overflow-hidden text-sm">
+        <thead class="bg-blue-700 text-white">
+          <tr>
+            <th class="px-6 py-4 text-left">Gazete No</th>
+            <th class="px-6 py-4 text-left">Yayin Tarihi</th>
+            <th class="px-6 py-4 text-left">Kararname Basligi</th>
+            <th class="px-6 py-4 text-center">Geçen Gün</th>
+            <th class="px-6 py-4 text-center">Kalan Gün</th>
+            <th class="px-6 py-4 text-center">Durum</th>
+            <th class="px-6 py-4 text-center">PDF</th>
+          </tr>
+        </thead>
+        <tbody id="tbody" class="divide-y"></tbody>
+      </table>
+    </div>
+
+    <p id="footer" class="text-center text-xs text-gray-500 mt-8"></p>
+  </div>
+
+  <script>
+    const PROXY = 'https://api.allorigins.win/raw?url=';
+    const URL = 'https://basimevi.gov.ct.tr/';
+
+    async function loadData() {
+      const loading = document.getElementById('loading');
+      const container = document.getElementById('tableContainer');
+      const tbody = document.getElementById('tbody');
+      const summary = document.getElementById('summary');
+      tbody.innerHTML = '';
+      loading.classList.remove('hidden');
+      container.classList.add('hidden');
+
+      try {
+        const res = await fetch(PROXY + encodeURIComponent(URL));
+        if (!res.ok) throw new Error('Siteye ulasilamadi');
+        const html = await res.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        const table = doc.querySelector('table');
+        if (!table) throw new Error('Tablo bulunamadi');
+
+        const rows = table.querySelectorAll('tr');
+        const data = [];
+        const today = new Date();
+
+        for (let row of rows) {
+          const tds = row.querySelectorAll('td');
+          if (tds.length < 3) continue;
+
+          const sayiCell = tds[0];
+          const dateStr = tds[1].textContent.trim();
+          const content = tds[2].textContent.trim().toUpperCase();
+
+          if (!content.includes('YASA GÜCÜNDE KARARNAME')) continue;
+
+          // PDF link
+          const link = sayiCell.querySelector('a');
+          const pdf = link ? 'https://basimevi.gov.ct.tr' + link.getAttribute('href') : '#';
+
+          // Tarih
+          const [day, month, year] = dateStr.split('.').map(Number);
+          const pubDate = new Date(year, month - 1, day);
+          const daysPassed = Math.floor((today - pubDate) / (86400000));
+          const daysLeft = 90 - daysPassed;
+
+          // Baslik (kisa)
+          const title = tds[2].textContent.trim().substring(0, 220) + (tds[2].textContent.trim().length > 220 ? '...' : '');
+
+          data.push({
+            sayi: sayiCell.textContent.trim().replace(/\[|\]/g, ''),
+            date: dateStr,
+            title: title,
+            passed: daysPassed,
+            left: daysLeft,
+            status: daysLeft > 0 ? '? AKTIF' : '? SÜRESI DOLDU',
+            pdf: pdf
+          });
+        }
+
+        // Tabloyu doldur
+        data.sort((a, b) => new Date(b.date.split('.').reverse().join('-')) - new Date(a.date.split('.').reverse().join('-')));
+
+        data.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="px-6 py-4 font-medium">${item.sayi}</td>
+            <td class="px-6 py-4">${item.date}</td>
+            <td class="px-6 py-4 text-gray-700">${item.title}</td>
+            <td class="px-6 py-4 text-center font-mono">${item.passed}</td>
+            <td class="px-6 py-4 text-center font-mono font-bold ${item.left > 0 ? 'text-green-600' : 'text-red-600'}">${item.left}</td>
+            <td class="px-6 py-4 text-center"><span class="inline-block px-4 py-1 rounded-full text-xs font-semibold ${item.left > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${item.status}</span></td>
+            <td class="px-6 py-4 text-center">
+              <a href="${item.pdf}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center gap-1">
+                <i class="fas fa-download"></i> Indir
+              </a>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        // Özet
+        const active = data.filter(d => d.left > 0).length;
+        summary.innerHTML = `
+          <div class="bg-white rounded-2xl shadow p-6 text-center">
+            <div class="text-green-600 text-5xl font-bold">${active}</div>
+            <div class="text-gray-600 font-medium">AKTIF Kararname</div>
+          </div>
+          <div class="bg-white rounded-2xl shadow p-6 text-center">
+            <div class="text-red-600 text-5xl font-bold">${data.length - active}</div>
+            <div class="text-gray-600 font-medium">Süresi Dolmus</div>
+          </div>
+          <div class="bg-white rounded-2xl shadow p-6 text-center md:col-span-1">
+            <div class="text-blue-700 text-5xl font-bold">${data.length}</div>
+            <div class="text-gray-600 font-medium">Toplam Izlenen YGK</div>
+          </div>
+        `;
+
+        loading.classList.add('hidden');
+        container.classList.remove('hidden');
+        document.getElementById('footer').innerHTML = `Son güncelleme: ${new Date().toLocaleString('tr-TR')} • Toplam ${data.length} kararname`;
+
+      } catch (err) {
+        loading.innerHTML = `<span class="text-red-600">Hata: ${err.message}<br><button onclick="loadData()" class="mt-4 underline">Tekrar Dene</button></span>`;
+      }
+    }
+
+    // Sayfa açilir açilmaz yükle
+    window.onload = loadData;
+  </script>
+</body>
+</html>
