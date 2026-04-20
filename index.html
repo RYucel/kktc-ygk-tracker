@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KKTC YGK 90 Gün Tracker</title>
+  <title>KKTC Yasa GÃ¼cÃ¼nde Kararnameler 90 GÃ¼n Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
-    table { border-collapse: collapse; }
     tr:hover { background-color: #f8fafc; }
   </style>
 </head>
@@ -17,61 +16,70 @@
     <div class="flex justify-between items-center mb-8">
       <div>
         <h1 class="text-4xl font-bold text-blue-700 flex items-center gap-3">
-          ???? KKTC Yasa Gücünde Kararnameler
-          <span class="text-2xl">90 Gün Tracker</span>
+          ðŸ‡¹ðŸ‡· KKTC Yasa GÃ¼cÃ¼nde Kararnameler
+          <span class="text-2xl">90 GÃ¼n Tracker</span>
         </h1>
-        <p class="text-gray-600 mt-2">Kaynak: <a href="https://basimevi.gov.ct.tr/" target="_blank" class="underline">basimevi.gov.ct.tr</a> • Anayasa Mahkemesi karariyla 90 günde Meclis’te görüsülmezse <strong>hükümsüz</strong></p>
+        <p class="text-gray-600 mt-2">
+          Kaynak: <a href="https://basimevi.gov.ct.tr/" target="_blank" class="underline">basimevi.gov.ct.tr</a> 
+          â€¢ Anayasa Mahkemesi kararÄ±yla 90 gÃ¼nde Meclisâ€™te gÃ¶rÃ¼ÅŸÃ¼lmezse <strong>hÃ¼kÃ¼msÃ¼z</strong>
+        </p>
       </div>
-      <button onclick="loadData()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 font-medium">
+      <button onclick="loadData()" 
+              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl flex items-center gap-2 font-medium">
         <i class="fas fa-sync"></i> Yenile
       </button>
     </div>
 
     <div id="summary" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8"></div>
 
-    <div id="loading" class="text-center py-12 text-gray-500">Veriler çekiliyor...</div>
+    <div id="loading" class="text-center py-12 text-gray-500">Veriler Ã§ekiliyor...</div>
     <div id="tableContainer" class="hidden">
-      <table class="w-full bg-white shadow-xl rounded-2xl overflow-hidden text-sm">
+      <table class="w-full bg-white shadow-2xl rounded-3xl overflow-hidden text-sm">
         <thead class="bg-blue-700 text-white">
           <tr>
-            <th class="px-6 py-4 text-left">Gazete No</th>
-            <th class="px-6 py-4 text-left">Yayin Tarihi</th>
-            <th class="px-6 py-4 text-left">Kararname Basligi</th>
-            <th class="px-6 py-4 text-center">Geçen Gün</th>
-            <th class="px-6 py-4 text-center">Kalan Gün</th>
-            <th class="px-6 py-4 text-center">Durum</th>
-            <th class="px-6 py-4 text-center">PDF</th>
+            <th class="px-6 py-5 text-left">Gazete No</th>
+            <th class="px-6 py-5 text-left">YayÄ±n Tarihi</th>
+            <th class="px-6 py-5 text-left">Kararname BaÅŸlÄ±ÄŸÄ±</th>
+            <th class="px-6 py-5 text-center">GeÃ§en GÃ¼n</th>
+            <th class="px-6 py-5 text-center">Kalan GÃ¼n</th>
+            <th class="px-6 py-5 text-center">Durum</th>
+            <th class="px-6 py-5 text-center">PDF</th>
           </tr>
         </thead>
         <tbody id="tbody" class="divide-y"></tbody>
       </table>
     </div>
 
-    <p id="footer" class="text-center text-xs text-gray-500 mt-8"></p>
+    <p id="footer" class="text-center text-xs text-gray-500 mt-10"></p>
   </div>
 
   <script>
-    const PROXY = 'https://api.allorigins.win/raw?url=';
-    const URL = 'https://basimevi.gov.ct.tr/';
+    const PROXY = "https://corsproxy.io/?";
+    const URL = "https://basimevi.gov.ct.tr/";
 
     async function loadData() {
       const loading = document.getElementById('loading');
       const container = document.getElementById('tableContainer');
       const tbody = document.getElementById('tbody');
       const summary = document.getElementById('summary');
+      
       tbody.innerHTML = '';
       loading.classList.remove('hidden');
       container.classList.add('hidden');
 
       try {
-        const res = await fetch(PROXY + encodeURIComponent(URL));
-        if (!res.ok) throw new Error('Siteye ulasilamadi');
+        const res = await fetch(PROXY + encodeURIComponent(URL), {
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; YGK-Tracker)' }
+        });
+
+        if (!res.ok) throw new Error('Siteye ulaÅŸÄ±lamadÄ± (proxy hatasÄ±)');
+
         const html = await res.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
         const table = doc.querySelector('table');
-        if (!table) throw new Error('Tablo bulunamadi');
+        if (!table) throw new Error('Tablo bulunamadÄ±');
 
         const rows = table.querySelectorAll('tr');
         const data = [];
@@ -85,33 +93,30 @@
           const dateStr = tds[1].textContent.trim();
           const content = tds[2].textContent.trim().toUpperCase();
 
-          if (!content.includes('YASA GÜCÜNDE KARARNAME')) continue;
+          if (!content.includes('YASA GÃœCÃœNDE KARARNAME')) continue;
 
-          // PDF link
           const link = sayiCell.querySelector('a');
           const pdf = link ? 'https://basimevi.gov.ct.tr' + link.getAttribute('href') : '#';
 
-          // Tarih
           const [day, month, year] = dateStr.split('.').map(Number);
           const pubDate = new Date(year, month - 1, day);
-          const daysPassed = Math.floor((today - pubDate) / (86400000));
+          const daysPassed = Math.floor((today - pubDate) / 86400000);
           const daysLeft = 90 - daysPassed;
 
-          // Baslik (kisa)
-          const title = tds[2].textContent.trim().substring(0, 220) + (tds[2].textContent.trim().length > 220 ? '...' : '');
+          const title = tds[2].textContent.trim().substring(0, 230) + 
+                       (tds[2].textContent.trim().length > 230 ? '...' : '');
 
           data.push({
-            sayi: sayiCell.textContent.trim().replace(/\[|\]/g, ''),
+            sayi: sayiCell.textContent.trim(),
             date: dateStr,
             title: title,
             passed: daysPassed,
             left: daysLeft,
-            status: daysLeft > 0 ? '? AKTIF' : '? SÜRESI DOLDU',
+            status: daysLeft > 0 ? 'âœ… AKTÄ°F' : 'âŒ SÃœRESÄ° DOLDU',
             pdf: pdf
           });
         }
 
-        // Tabloyu doldur
         data.sort((a, b) => new Date(b.date.split('.').reverse().join('-')) - new Date(a.date.split('.').reverse().join('-')));
 
         data.forEach(item => {
@@ -121,44 +126,54 @@
             <td class="px-6 py-4">${item.date}</td>
             <td class="px-6 py-4 text-gray-700">${item.title}</td>
             <td class="px-6 py-4 text-center font-mono">${item.passed}</td>
-            <td class="px-6 py-4 text-center font-mono font-bold ${item.left > 0 ? 'text-green-600' : 'text-red-600'}">${item.left}</td>
-            <td class="px-6 py-4 text-center"><span class="inline-block px-4 py-1 rounded-full text-xs font-semibold ${item.left > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${item.status}</span></td>
+            <td class="px-6 py-4 text-center font-bold ${item.left > 0 ? 'text-green-600' : 'text-red-600'}">${item.left}</td>
+            <td class="px-6 py-4 text-center">
+              <span class="inline-block px-5 py-1 rounded-full text-xs font-semibold ${item.left > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                ${item.status}
+              </span>
+            </td>
             <td class="px-6 py-4 text-center">
               <a href="${item.pdf}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center gap-1">
-                <i class="fas fa-download"></i> Indir
+                <i class="fas fa-download"></i> Ä°ndir
               </a>
             </td>
           `;
           tbody.appendChild(tr);
         });
 
-        // Özet
         const active = data.filter(d => d.left > 0).length;
         summary.innerHTML = `
-          <div class="bg-white rounded-2xl shadow p-6 text-center">
+          <div class="bg-white rounded-3xl shadow p-6 text-center">
             <div class="text-green-600 text-5xl font-bold">${active}</div>
-            <div class="text-gray-600 font-medium">AKTIF Kararname</div>
+            <div class="text-gray-600 font-medium mt-1">AKTÄ°F Kararname</div>
           </div>
-          <div class="bg-white rounded-2xl shadow p-6 text-center">
+          <div class="bg-white rounded-3xl shadow p-6 text-center">
             <div class="text-red-600 text-5xl font-bold">${data.length - active}</div>
-            <div class="text-gray-600 font-medium">Süresi Dolmus</div>
+            <div class="text-gray-600 font-medium mt-1">SÃ¼resi DolmuÅŸ</div>
           </div>
-          <div class="bg-white rounded-2xl shadow p-6 text-center md:col-span-1">
+          <div class="bg-white rounded-3xl shadow p-6 text-center">
             <div class="text-blue-700 text-5xl font-bold">${data.length}</div>
-            <div class="text-gray-600 font-medium">Toplam Izlenen YGK</div>
+            <div class="text-gray-600 font-medium mt-1">Toplam YGK</div>
           </div>
         `;
 
         loading.classList.add('hidden');
         container.classList.remove('hidden');
-        document.getElementById('footer').innerHTML = `Son güncelleme: ${new Date().toLocaleString('tr-TR')} • Toplam ${data.length} kararname`;
+        document.getElementById('footer').innerHTML = 
+          `Son gÃ¼ncelleme: ${new Date().toLocaleString('tr-TR')} â€¢ Toplam ${data.length} kararname`;
 
       } catch (err) {
-        loading.innerHTML = `<span class="text-red-600">Hata: ${err.message}<br><button onclick="loadData()" class="mt-4 underline">Tekrar Dene</button></span>`;
+        console.error(err);
+        loading.innerHTML = `
+          <span class="text-red-600 block mb-4">Hata: ${err.message}</span>
+          <button onclick="loadData()" class="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700">
+            Tekrar Dene
+          </button>
+          <p class="text-xs text-gray-500 mt-6">Proxy sorunu devam ederse Vercel projesini silip yeniden deploy edin.</p>
+        `;
       }
     }
 
-    // Sayfa açilir açilmaz yükle
     window.onload = loadData;
   </script>
 </body>
