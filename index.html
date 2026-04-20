@@ -51,27 +51,22 @@
     </div>
 
     <p id="footer" class="text-center text-xs text-gray-500 mt-10"></p>
-    <div id="debugInfo" class="text-xs text-gray-400 mt-4 text-center"></div>
+    <div id="debugInfo" class="text-xs text-gray-400 mt-2 text-center"></div>
   </div>
 
   <script>
     const PROXIES = [
-      "https://api.codetabs.com/v1/proxy?quest=",     // En stabil şu anda
+      "https://api.codetabs.com/v1/proxy?quest=",
       "https://corsproxy.io/?",
       "https://api.allorigins.win/raw?url="
     ];
-
     const TARGET_URL = "https://basimevi.gov.ct.tr/";
 
     async function tryProxy(proxy) {
-      const fullUrl = proxy + encodeURIComponent(TARGET_URL);
-      console.log(`[DEBUG] Denenen proxy: ${proxy}`);
-      
-      const res = await fetch(fullUrl, {
+      const res = await fetch(proxy + encodeURIComponent(TARGET_URL), {
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; KKTC-YGK-Tracker/1.0)' },
         signal: AbortSignal.timeout(15000)
       });
-      
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.text();
     }
@@ -82,7 +77,7 @@
       const tbody = document.getElementById('tbody');
       const summary = document.getElementById('summary');
       const debugInfo = document.getElementById('debugInfo');
-      
+
       tbody.innerHTML = '';
       loading.classList.remove('hidden');
       container.classList.add('hidden');
@@ -95,20 +90,14 @@
         try {
           html = await tryProxy(proxy);
           usedProxy = proxy;
-          console.log(`✅ Başarılı proxy: ${proxy}`);
           break;
         } catch (e) {
-          console.log(`❌ Proxy başarısız: ${proxy} → ${e.message}`);
           debugInfo.textContent = `Proxy deneniyor... (${PROXIES.indexOf(proxy)+1}/${PROXIES.length})`;
         }
       }
 
       if (!html) {
-        loading.innerHTML = `
-          <span class="text-red-600 block mb-4">Tüm proxy'ler başarısız oldu.</span>
-          <button onclick="loadData()" class="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700">Tekrar Dene</button>
-          <p class="text-xs mt-6">Tarayıcı konsolunu aç (F12) ve detayları gör.</p>
-        `;
+        loading.innerHTML = `<span class="text-red-600">Tüm proxy'ler başarısız.</span><button onclick="loadData()" class="mt-4 bg-red-600 text-white px-6 py-2 rounded-xl">Tekrar Dene</button>`;
         return;
       }
 
@@ -121,31 +110,44 @@
         const rows = table.querySelectorAll('tr');
         const data = [];
         const today = new Date();
+        let lastValidDate = null;   // ← NA N SORUNUNU ÇÖZEN KISIM
 
         for (let row of rows) {
           const tds = row.querySelectorAll('td');
           if (tds.length < 3) continue;
 
           const sayiCell = tds[0];
-          const dateStr = tds[1].textContent.trim();
+          let dateStr = tds[1].textContent.trim();
           const content = tds[2].textContent.trim().toUpperCase();
 
           if (!content.includes('YASA GÜCÜNDE KARARNAME')) continue;
 
-          const link = sayiCell.querySelector('a');
-          const pdf = link ? 'https://basimevi.gov.ct.tr' + link.getAttribute('href') : '#';
+          // Tarih parsing + fallback (en önemli iyileştirme)
+          let pubDate = null;
+          const dateRegex = /^\d{2}\.\d{2}\.\d{4}$/;
+          
+          if (dateStr && dateRegex.test(dateStr)) {
+            const [d, m, y] = dateStr.split('.').map(Number);
+            pubDate = new Date(y, m - 1, d);
+            if (!isNaN(pubDate.getTime())) lastValidDate = pubDate;
+          } else if (lastValidDate) {
+            pubDate = lastValidDate;   // boş tarih → önceki tarihi kullan
+          } else {
+            continue; // ilk satırda tarih yoksa atla
+          }
 
-          const [day, month, year] = dateStr.split('.').map(Number);
-          const pubDate = new Date(year, month - 1, day);
           const daysPassed = Math.floor((today - pubDate) / 86400000);
           const daysLeft = 90 - daysPassed;
+
+          const link = sayiCell.querySelector('a');
+          const pdf = link ? 'https://basimevi.gov.ct.tr' + link.getAttribute('href') : '#';
 
           const title = tds[2].textContent.trim().substring(0, 230) + 
                        (tds[2].textContent.trim().length > 230 ? '...' : '');
 
           data.push({
             sayi: sayiCell.textContent.trim(),
-            date: dateStr,
+            date: dateStr || pubDate.toLocaleDateString('tr-TR').replace(/\//g, '.'), // gösterimde tarih her zaman olsun
             title: title,
             passed: daysPassed,
             left: daysLeft,
@@ -156,7 +158,7 @@
 
         data.sort((a, b) => new Date(b.date.split('.').reverse().join('-')) - new Date(a.date.split('.').reverse().join('-')));
 
-        // Tabloyu doldur
+        // Tablo doldurma (aynı)
         data.forEach(item => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
@@ -196,13 +198,13 @@
         loading.classList.add('hidden');
         container.classList.remove('hidden');
         document.getElementById('footer').innerHTML = 
-          `Son güncelleme: ${new Date().toLocaleString('tr-TR')} • Kullanılan proxy: ${usedProxy.split('/')[2]}`;
+          `Son güncelleme: ${new Date().toLocaleString('tr-TR')} • Proxy: ${usedProxy.split('/')[2]}`;
 
-        debugInfo.textContent = `✅ ${data.length} kararname yüklendi (proxy: ${usedProxy.split('/')[2]})`;
+        debugInfo.textContent = `✅ ${data.length} YGK yüklendi (tarih fallback sistemi aktif)`;
 
       } catch (err) {
         console.error(err);
-        loading.innerHTML = `<span class="text-red-600">HTML parse hatası: ${err.message}</span>`;
+        loading.innerHTML = `<span class="text-red-600">Parse hatası: ${err.message}</span>`;
       }
     }
 
