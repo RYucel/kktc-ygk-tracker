@@ -1,212 +1,885 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KKTC Yasa Gücünde Kararnameler 90 Gün Tracker</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>KKTC Yasa Gücünde Kararnameler - 90 Gün Tracker</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Tailwind CSS (for layout structures) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+  
+  <!-- Tailored CSS Design System -->
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; }
-    tr:hover { background-color: #f8fafc; }
+    /* Design Tokens & Theme Variables */
+    :root {
+      --font-title: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      
+      --bg-app: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #f1f5f9;
+      --border-card: #e2e8f0;
+      
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-rgb: 37, 99, 235;
+      
+      --success: #16a34a;
+      --success-bg: #f0fdf4;
+      --success-border: #dcfce7;
+      --success-text: #15803d;
+      
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --danger-border: #fee2e2;
+      --danger-text: #b91c1c;
+
+      --warning: #d97706;
+      --warning-bg: #fffeb3;
+      --warning-border: #fde68a;
+      --warning-text: #b45309;
+
+      --card-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.12), 0 2px 8px -1px rgba(148, 163, 184, 0.08);
+      --card-shadow-hover: 0 20px 25px -5px rgba(148, 163, 184, 0.2), 0 8px 10px -6px rgba(148, 163, 184, 0.15);
+      --transition-speed: 0.3s;
+    }
+
+    .dark {
+      --bg-app: #0b0f19;
+      --bg-card: #131a2e;
+      --bg-card-hover: #18223c;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #1e293b;
+      --border-card: #1e293b;
+      
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-rgb: 59, 130, 246;
+      
+      --success: #4ade80;
+      --success-bg: rgba(22, 163, 74, 0.15);
+      --success-border: rgba(22, 163, 74, 0.25);
+      --success-text: #4ade80;
+      
+      --danger: #f87171;
+      --danger-bg: rgba(220, 38, 38, 0.15);
+      --danger-border: rgba(220, 38, 38, 0.25);
+      --danger-text: #f87171;
+
+      --warning: #fbbf24;
+      --warning-bg: rgba(217, 119, 6, 0.15);
+      --warning-border: rgba(217, 119, 6, 0.25);
+      --warning-text: #fbbf24;
+
+      --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3), 0 2px 8px -1px rgba(0, 0, 0, 0.2);
+      --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Core Styles */
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+    }
+
+    h1, h2, h3, .font-title {
+      font-family: var(--font-title);
+    }
+
+    /* Glassmorphism Elements */
+    .glass-header {
+      background: rgba(var(--primary-rgb), 0.03);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .card-modern {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-card);
+      box-shadow: var(--card-shadow);
+      border-radius: 1.25rem;
+      transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-modern:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--card-shadow-hover);
+      border-color: rgba(var(--primary-rgb), 0.3);
+      background-color: var(--bg-card-hover);
+    }
+
+    /* Soft Badges */
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.875rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-active {
+      background-color: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success-border);
+    }
+
+    .badge-expired {
+      background-color: var(--danger-bg);
+      color: var(--danger-text);
+      border: 1px solid var(--danger-border);
+    }
+
+    .badge-warning {
+      background-color: var(--warning-bg);
+      color: var(--warning-text);
+      border: 1px solid var(--warning-border);
+    }
+
+    /* Interactive Table styling */
+    .table-container {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-card);
+      box-shadow: var(--card-shadow);
+      border-radius: 1.25rem;
+      overflow: hidden;
+    }
+
+    .table-row {
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color var(--transition-speed) ease;
+    }
+
+    .table-row:hover {
+      background-color: rgba(var(--primary-rgb), 0.02);
+    }
+
+    /* Minimalist Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-app);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-card);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* Pulsing Light */
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 8px rgba(22, 163, 74, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+      }
+    }
+
+    /* Progress bar track */
+    .progress-bar-bg {
+      background-color: var(--border-card);
+      height: 6px;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 0.5s ease-out;
+    }
+
+    /* Filter button states */
+    .filter-btn {
+      transition: all 0.2s ease;
+      border: 1px solid var(--border-card);
+      background-color: var(--bg-card);
+      color: var(--text-muted);
+    }
+
+    .filter-btn.active {
+      background-color: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.25);
+    }
+
+    /* Modern loading skeleton */
+    .skeleton-line {
+      background: linear-gradient(90deg, var(--border-color) 25%, var(--bg-app) 50%, var(--border-color) 75%);
+      background-size: 200% 100%;
+      animation: loading-skeleton 1.5s infinite;
+      border-radius: 0.375rem;
+    }
+
+    @keyframes loading-skeleton {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
   </style>
 </head>
-<body class="bg-gray-50">
-  <div class="max-w-7xl mx-auto p-6">
-    <div class="flex justify-between items-center mb-8">
-      <div>
-        <h1 class="text-4xl font-bold text-blue-700 flex items-center gap-3">
-          🇹🇷 KKTC Yasa Gücünde Kararnameler
-          <span class="text-2xl">90 Gün Tracker</span>
-        </h1>
-        <p class="text-gray-600 mt-2">
-          Kaynak: <a href="https://basimevi.gov.ct.tr/" target="_blank" class="underline">basimevi.gov.ct.tr</a> 
-          • Anayasa Mahkemesi kararıyla 90 günde Meclis’te görüşülmezse <strong>hükümsüz</strong>
-        </p>
+<body class="antialiased min-h-screen pb-16">
+
+  <!-- Floating Nav / Header -->
+  <header class="sticky top-0 z-40 glass-header w-full">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shadow-blue-500/20">
+          🇹🇷
+        </div>
+        <div>
+          <h1 class="text-xl font-bold leading-tight tracking-tight sm:text-2xl">
+            KKTC Kararname Takipçisi
+          </h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            90 Günlük Anayasal Meclis Görüşme Süresi
+          </p>
+        </div>
       </div>
-      <button onclick="loadData()" 
-              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl flex items-center gap-2 font-medium">
-        <i class="fas fa-sync"></i> Yenile
-      </button>
+      
+      <!-- Actions Block -->
+      <div class="flex items-center gap-3">
+        <button id="themeToggle" class="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" aria-label="Karanlık Mod">
+          <i class="fa-solid fa-moon dark:hidden"></i>
+          <i class="fa-solid fa-sun hidden dark:block"></i>
+        </button>
+        <button onclick="loadData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl flex items-center gap-2 font-semibold text-sm transition-all shadow-md hover:shadow-lg shadow-blue-500/10">
+          <i class="fas fa-sync-alt animate-hover"></i> <span class="hidden sm:inline">Verileri Yenile</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+    
+    <!-- Info banner & Quick description -->
+    <div class="bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-4 sm:p-5 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex gap-3">
+        <i class="fa-solid fa-circle-info text-blue-600 dark:text-blue-400 text-xl mt-0.5"></i>
+        <div>
+          <p class="text-sm text-blue-900 dark:text-blue-300 font-medium">
+            Anayasa Mahkemesi kararı uyarınca, Yasa Gücünde Kararnameler (YGK) Resmi Gazete'de yayınlandıkları tarihten itibaren <strong>90 gün</strong> içinde Meclis’te görüşülüp yasalaştırılmazlarsa <strong>hükümsüz</strong> kalırlar.
+          </p>
+          <p class="text-xs text-blue-700/80 dark:text-blue-400/80 mt-1">
+            Resmi kaynak: <a href="https://basimevi.gov.ct.tr/" target="_blank" class="underline hover:text-blue-600 font-semibold">KKTC Devlet Basımevi</a>
+          </p>
+        </div>
+      </div>
     </div>
 
-    <div id="summary" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8"></div>
+    <!-- Summary Metrics Dashboard -->
+    <section id="summary" class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+      <!-- Metric Cards will be injected dynamically -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+        <div>
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Aktif Kararnameler</span>
+          <div class="text-3xl font-extrabold mt-1 text-emerald-600">-</div>
+        </div>
+        <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </div>
+      </div>
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+        <div>
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Süresi Dolanlar</span>
+          <div class="text-3xl font-extrabold mt-1 text-red-600">-</div>
+        </div>
+        <div class="w-12 h-12 bg-red-50 dark:bg-red-950/30 text-red-600 rounded-xl flex items-center justify-center text-xl">
+          <i class="fa-solid fa-circle-xmark"></i>
+        </div>
+      </div>
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+        <div>
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Toplam Kararname</span>
+          <div class="text-3xl font-extrabold mt-1 text-blue-600 dark:text-blue-400">-</div>
+        </div>
+        <div class="w-12 h-12 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center text-xl">
+          <i class="fa-solid fa-file-invoice"></i>
+        </div>
+      </div>
+    </section>
 
-    <div id="loading" class="text-center py-12 text-gray-500">Veriler çekiliyor...</div>
-    <div id="tableContainer" class="hidden">
-      <table class="w-full bg-white shadow-2xl rounded-3xl overflow-hidden text-sm">
-        <thead class="bg-blue-700 text-white">
-          <tr>
-            <th class="px-6 py-5 text-left">Gazete No</th>
-            <th class="px-6 py-5 text-left">Yayın Tarihi</th>
-            <th class="px-6 py-5 text-left">Kararname Başlığı</th>
-            <th class="px-6 py-5 text-center">Geçen Gün</th>
-            <th class="px-6 py-5 text-center">Kalan Gün</th>
-            <th class="px-6 py-5 text-center">Durum</th>
-            <th class="px-6 py-5 text-center">PDF</th>
+    <!-- Filters & Search Bar -->
+    <div class="flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center mb-6">
+      <!-- Filter tabs -->
+      <div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800/80 rounded-xl self-start">
+        <button id="filter-all" onclick="setFilter('all')" class="filter-btn active px-4 py-2 rounded-lg text-xs font-semibold">
+          Hepsi
+        </button>
+        <button id="filter-active" onclick="setFilter('active')" class="filter-btn px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+        </button>
+        <button id="filter-expired" onclick="setFilter('expired')" class="filter-btn px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Süresi Dolmuş
+        </button>
+      </div>
+
+      <!-- Search input -->
+      <div class="relative flex-1 md:max-w-md">
+        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+        <input type="text" id="searchInput" oninput="handleSearch(this.value)" placeholder="Kararname başlığı veya gazete no ile ara..." 
+          class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+      </div>
+    </div>
+
+    <!-- Loading Skeleton View -->
+    <div id="loading" class="py-16 space-y-6">
+      <div class="text-center text-slate-500 dark:text-slate-400 mb-6 flex flex-col items-center justify-center gap-3">
+        <div class="w-10 h-10 border-4 border-blue-600/30 border-t-blue-600 rounded-full animate-spin"></div>
+        <p class="font-medium text-sm">Veriler Resmi Gazete'den çekiliyor...</p>
+      </div>
+      <div class="space-y-4">
+        <div class="h-16 skeleton-line w-full"></div>
+        <div class="h-16 skeleton-line w-full"></div>
+        <div class="h-16 skeleton-line w-full"></div>
+        <div class="h-16 skeleton-line w-full"></div>
+      </div>
+    </div>
+
+    <!-- Content: Empty State -->
+    <div id="emptyState" class="hidden py-16 text-center">
+      <div class="w-16 h-16 bg-slate-100 dark:bg-slate-950 text-slate-400 dark:text-slate-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
+        <i class="fa-solid fa-folder-open"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Kayıt Bulunamadı</h3>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">Arama kriterlerinize veya seçilen filtreye uygun kararname bulunmamaktadır.</p>
+    </div>
+
+    <!-- Content: Table View (Desktop) -->
+    <div id="tableContainer" class="hidden md:block table-container">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <th class="px-6 py-4 w-28">Gazete Sayı</th>
+            <th class="px-6 py-4 w-32">Yayın Tarihi</th>
+            <th class="px-6 py-4">Kararname Başlığı</th>
+            <th class="px-6 py-4 w-56">90 Gün Durumu</th>
+            <th class="px-6 py-4 w-28 text-center">İndir</th>
           </tr>
         </thead>
-        <tbody id="tbody" class="divide-y"></tbody>
+        <tbody id="tbody" class="text-sm font-medium text-slate-700 dark:text-slate-300 divide-y divide-slate-100 dark:divide-slate-800/50">
+          <!-- Injected dynamically -->
+        </tbody>
       </table>
     </div>
 
-    <p id="footer" class="text-center text-xs text-gray-500 mt-10"></p>
-    <div id="debugInfo" class="text-xs text-gray-400 mt-2 text-center"></div>
+    <!-- Content: Card View (Mobile) -->
+    <div id="cardContainer" class="hidden grid grid-cols-1 gap-4 md:hidden">
+      <!-- Injected dynamically -->
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="hidden py-16 text-center">
+      <div class="w-16 h-16 bg-red-50 dark:bg-red-950/20 text-red-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Veriler Yüklenemedi</h3>
+      <p id="errorMessage" class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto mb-6">Sunucu veya bağlantı kaynaklı bir hata oluştu.</p>
+      <button onclick="loadData()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-md shadow-red-500/10">
+        Tekrar Dene
+      </button>
+    </div>
+
+    <!-- Footer Information -->
+    <footer class="mt-16 border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+      <p id="footerMeta" class="font-medium"></p>
+      <p id="debugInfo" class="font-mono text-slate-400 dark:text-slate-500"></p>
+    </footer>
+  </main>
+
+  <!-- Detail Modal -->
+  <div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/20">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold font-mono bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-2.5 py-1 rounded-md border border-blue-100 dark:border-blue-900" id="modalSayi">Sayı: -</span>
+          <span id="modalBadge"></span>
+        </div>
+        <button onclick="closeModal()" class="w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Content -->
+      <div class="p-6 space-y-5">
+        <div>
+          <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Kararname Başlığı</h4>
+          <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-relaxed" id="modalTitle">-</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Yayın Tarihi</h4>
+            <p class="text-sm font-bold text-slate-800 dark:text-slate-200" id="modalDate">-</p>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Geçen Gün</h4>
+            <p class="text-sm font-bold text-slate-800 dark:text-slate-200" id="modalPassed">-</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center text-xs font-bold text-slate-400 mb-2">
+            <span>90 GÜNLÜK MECLİS SÜRESİ</span>
+            <span id="modalProgressText" class="text-slate-800 dark:text-slate-200 font-semibold">-</span>
+          </div>
+          <!-- Progress bar -->
+          <div class="progress-bar-bg">
+            <div id="modalProgressBar" class="progress-bar-fill bg-blue-600" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 flex gap-3">
+        <a id="modalPdfLink" href="#" target="_blank" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-semibold text-sm text-center flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-500/10">
+          <i class="fa-solid fa-file-pdf"></i> Resmi Gazete PDF
+        </a>
+        <button onclick="closeModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-semibold text-slate-600 dark:text-slate-300 transition-colors">
+          Kapat
+        </button>
+      </div>
+    </div>
   </div>
 
   <script>
-    const PROXIES = [
-      "https://api.codetabs.com/v1/proxy?quest=",
-      "https://corsproxy.io/?",
-      "https://api.allorigins.win/raw?url="
-    ];
-    const TARGET_URL = "https://basimevi.gov.ct.tr/";
+    // Global App State
+    let allData = [];
+    let currentFilter = 'all';
+    let searchQuery = '';
 
-    async function tryProxy(proxy) {
-      const res = await fetch(proxy + encodeURIComponent(TARGET_URL), {
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; KKTC-YGK-Tracker/1.0)' },
-        signal: AbortSignal.timeout(15000)
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.text();
+    // Dark Mode Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    
+    // Check local storage or system preference
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
 
-    async function loadData() {
-      const loading = document.getElementById('loading');
-      const container = document.getElementById('tableContainer');
-      const tbody = document.getElementById('tbody');
-      const summary = document.getElementById('summary');
-      const debugInfo = document.getElementById('debugInfo');
+    themeToggle.addEventListener('click', () => {
+      if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      }
+    });
 
-      tbody.innerHTML = '';
-      loading.classList.remove('hidden');
-      container.classList.add('hidden');
-      debugInfo.textContent = 'Proxy deneniyor...';
+    // Scrape / Fetch data with proxy fallback
+    async function fetchData() {
+      // First choice: Vercel Serverless Function Proxy
+      try {
+        const res = await fetch('/api/scrape', { signal: AbortSignal.timeout(10000) });
+        if (res.ok) {
+          return { html: await res.text(), source: 'Vercel Serverless API' };
+        }
+      } catch (e) {
+        console.warn("Vercel API request failed, moving to fallback proxies...", e);
+      }
 
-      let html = null;
-      let usedProxy = null;
+      // Second choice: Public CORS proxies
+      const TARGET_URL = "https://basimevi.gov.ct.tr/";
+      const proxies = [
+        "https://corsproxy.io/?",
+        "https://api.allorigins.win/raw?url=",
+        "https://api.codetabs.com/v1/proxy?quest="
+      ];
 
-      for (const proxy of PROXIES) {
+      for (const proxy of proxies) {
         try {
-          html = await tryProxy(proxy);
-          usedProxy = proxy;
-          break;
+          const url = proxy + encodeURIComponent(TARGET_URL);
+          const res = await fetch(url, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
+            signal: AbortSignal.timeout(12000)
+          });
+          if (res.ok) {
+            return { html: await res.text(), source: `Proxy: ${proxy.split('/')[2]}` };
+          }
         } catch (e) {
-          debugInfo.textContent = `Proxy deneniyor... (${PROXIES.indexOf(proxy)+1}/${PROXIES.length})`;
+          console.warn(`Proxy failed: ${proxy}`, e);
         }
       }
 
-      if (!html) {
-        loading.innerHTML = `<span class="text-red-600">Tüm proxy'ler başarısız.</span><button onclick="loadData()" class="mt-4 bg-red-600 text-white px-6 py-2 rounded-xl">Tekrar Dene</button>`;
-        return;
-      }
+      throw new Error("Veriler KKTC Basımevi sunucularından çekilemedi. Lütfen daha sonra tekrar deneyiniz.");
+    }
+
+    // Main loader
+    async function loadData() {
+      const loading = document.getElementById('loading');
+      const tableContainer = document.getElementById('tableContainer');
+      const cardContainer = document.getElementById('cardContainer');
+      const errorState = document.getElementById('errorState');
+      const emptyState = document.getElementById('emptyState');
+      const debugInfo = document.getElementById('debugInfo');
+
+      loading.classList.remove('hidden');
+      tableContainer.classList.add('hidden');
+      cardContainer.classList.add('hidden');
+      errorState.classList.add('hidden');
+      emptyState.classList.add('hidden');
+      debugInfo.textContent = 'Bağlantı kuruluyor...';
 
       try {
+        const result = await fetchData();
+        
+        // Parse HTML
         const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
+        const doc = parser.parseFromString(result.html, 'text/html');
         const table = doc.querySelector('table');
-        if (!table) throw new Error('Tablo bulunamadı');
+        if (!table) throw new Error('Yasa Tablosu resmi gazete sayfasında bulunamadı.');
 
         const rows = table.querySelectorAll('tr');
-        const data = [];
+        const parsedRows = [];
         const today = new Date();
-        let lastValidDate = null;   // ← NA N SORUNUNU ÇÖZEN KISIM
+        // Set hours to 0 to keep calculation purely date-based
+        today.setHours(0, 0, 0, 0);
+        let lastValidDate = null;
 
         for (let row of rows) {
           const tds = row.querySelectorAll('td');
           if (tds.length < 3) continue;
 
           const sayiCell = tds[0];
-          let dateStr = tds[1].textContent.trim();
-          const content = tds[2].textContent.trim().toUpperCase();
+          const dateStr = tds[1].textContent.trim();
+          const content = tds[2].textContent.trim();
 
-          if (!content.includes('YASA GÜCÜNDE KARARNAME')) continue;
+          // Only keep rows that are decrees
+          if (!content.toUpperCase().includes('YASA GÜCÜNDE KARARNAME')) continue;
 
-          // Tarih parsing + fallback (en önemli iyileştirme)
           let pubDate = null;
           const dateRegex = /^\d{2}\.\d{2}\.\d{4}$/;
           
           if (dateStr && dateRegex.test(dateStr)) {
             const [d, m, y] = dateStr.split('.').map(Number);
             pubDate = new Date(y, m - 1, d);
+            pubDate.setHours(0, 0, 0, 0);
             if (!isNaN(pubDate.getTime())) lastValidDate = pubDate;
           } else if (lastValidDate) {
-            pubDate = lastValidDate;   // boş tarih → önceki tarihi kullan
+            pubDate = lastValidDate;
           } else {
-            continue; // ilk satırda tarih yoksa atla
+            continue;
           }
 
-          const daysPassed = Math.floor((today - pubDate) / 86400000);
+          // Calculate dates
+          const diffTime = today - pubDate;
+          const daysPassed = Math.floor(diffTime / 86400000);
           const daysLeft = 90 - daysPassed;
 
           const link = sayiCell.querySelector('a');
           const pdf = link ? 'https://basimevi.gov.ct.tr' + link.getAttribute('href') : '#';
 
-          const title = tds[2].textContent.trim().substring(0, 230) + 
-                       (tds[2].textContent.trim().length > 230 ? '...' : '');
+          // Clean title
+          const title = content.replace(/\s+/g, ' ');
 
-          data.push({
+          parsedRows.push({
             sayi: sayiCell.textContent.trim(),
-            date: dateStr || pubDate.toLocaleDateString('tr-TR').replace(/\//g, '.'), // gösterimde tarih her zaman olsun
+            date: pubDate.toLocaleDateString('tr-TR'),
+            rawDate: pubDate,
             title: title,
             passed: daysPassed,
             left: daysLeft,
-            status: daysLeft > 0 ? '✅ AKTİF' : '❌ SÜRESİ DOLDU',
             pdf: pdf
           });
         }
 
-        data.sort((a, b) => new Date(b.date.split('.').reverse().join('-')) - new Date(a.date.split('.').reverse().join('-')));
-
-        // Tablo doldurma (aynı)
-        data.forEach(item => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="px-6 py-4 font-medium">${item.sayi}</td>
-            <td class="px-6 py-4">${item.date}</td>
-            <td class="px-6 py-4 text-gray-700">${item.title}</td>
-            <td class="px-6 py-4 text-center font-mono">${item.passed}</td>
-            <td class="px-6 py-4 text-center font-bold ${item.left > 0 ? 'text-green-600' : 'text-red-600'}">${item.left}</td>
-            <td class="px-6 py-4 text-center">
-              <span class="inline-block px-5 py-1 rounded-full text-xs font-semibold ${item.left > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${item.status}</span>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <a href="${item.pdf}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center gap-1">
-                <i class="fas fa-download"></i> İndir
-              </a>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        const active = data.filter(d => d.left > 0).length;
-        summary.innerHTML = `
-          <div class="bg-white rounded-3xl shadow p-6 text-center">
-            <div class="text-green-600 text-5xl font-bold">${active}</div>
-            <div class="text-gray-600 font-medium mt-1">AKTİF Kararname</div>
-          </div>
-          <div class="bg-white rounded-3xl shadow p-6 text-center">
-            <div class="text-red-600 text-5xl font-bold">${data.length - active}</div>
-            <div class="text-gray-600 font-medium mt-1">Süresi Dolmuş</div>
-          </div>
-          <div class="bg-white rounded-3xl shadow p-6 text-center">
-            <div class="text-blue-700 text-5xl font-bold">${data.length}</div>
-            <div class="text-gray-600 font-medium mt-1">Toplam YGK</div>
-          </div>
-        `;
+        // Sort descending by date
+        parsedRows.sort((a, b) => b.rawDate - a.rawDate);
+        
+        allData = parsedRows;
+        
+        // Update dashboard and display
+        updateMetrics();
+        renderData();
 
         loading.classList.add('hidden');
-        container.classList.remove('hidden');
-        document.getElementById('footer').innerHTML = 
-          `Son güncelleme: ${new Date().toLocaleString('tr-TR')} • Proxy: ${usedProxy.split('/')[2]}`;
-
-        debugInfo.textContent = `✅ ${data.length} YGK yüklendi (tarih fallback sistemi aktif)`;
+        document.getElementById('footerMeta').innerHTML = 
+          `<i class="fa-regular fa-clock mr-1"></i> Son güncelleme: ${new Date().toLocaleString('tr-TR')} • Veri Kaynağı: ${result.source}`;
+        debugInfo.textContent = `✅ ${allData.length} Kararname Listelendi`;
 
       } catch (err) {
         console.error(err);
-        loading.innerHTML = `<span class="text-red-600">Parse hatası: ${err.message}</span>`;
+        loading.classList.add('hidden');
+        errorState.classList.remove('hidden');
+        document.getElementById('errorMessage').textContent = err.message;
+        debugInfo.textContent = '❌ Veri yükleme hatası';
       }
     }
+
+    // Calculate and render metric cards
+    function updateMetrics() {
+      const activeCount = allData.filter(d => d.left > 0).length;
+      const expiredCount = allData.length - activeCount;
+
+      document.getElementById('summary').innerHTML = `
+        <div class="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex items-center justify-between transition-colors">
+          <div>
+            <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Aktif Kararnameler</span>
+            <div class="text-4xl font-extrabold mt-1 text-emerald-600 dark:text-emerald-500 flex items-center gap-2">
+              ${activeCount}
+              <span class="pulse-dot"></span>
+            </div>
+          </div>
+          <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center text-xl shadow-inner">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex items-center justify-between transition-colors">
+          <div>
+            <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Süresi Dolanlar</span>
+            <div class="text-4xl font-extrabold mt-1 text-red-600 dark:text-red-500">${expiredCount}</div>
+          </div>
+          <div class="w-12 h-12 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 rounded-xl flex items-center justify-center text-xl shadow-inner">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex items-center justify-between transition-colors">
+          <div>
+            <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Toplam Kararname</span>
+            <div class="text-4xl font-extrabold mt-1 text-blue-600 dark:text-blue-400">${allData.length}</div>
+          </div>
+          <div class="w-12 h-12 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center text-xl shadow-inner">
+            <i class="fa-solid fa-file-invoice"></i>
+          </div>
+        </div>
+      `;
+    }
+
+    // Filter and Search logic
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`filter-${filter}`).classList.add('active');
+      renderData();
+    }
+
+    function handleSearch(val) {
+      searchQuery = val.toLowerCase().trim();
+      renderData();
+    }
+
+    // Render tables and cards based on filters/search
+    function renderData() {
+      const tbody = document.getElementById('tbody');
+      const cardContainer = document.getElementById('cardContainer');
+      const tableContainer = document.getElementById('tableContainer');
+      const emptyState = document.getElementById('emptyState');
+      
+      tbody.innerHTML = '';
+      cardContainer.innerHTML = '';
+
+      const filtered = allData.filter(item => {
+        const matchesFilter = 
+          currentFilter === 'all' || 
+          (currentFilter === 'active' && item.left > 0) || 
+          (currentFilter === 'expired' && item.left <= 0);
+          
+        const matchesSearch = 
+          item.title.toLowerCase().includes(searchQuery) || 
+          item.sayi.toLowerCase().includes(searchQuery);
+
+        return matchesFilter && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        tableContainer.classList.add('hidden');
+        cardContainer.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      tableContainer.classList.remove('hidden');
+      cardContainer.classList.remove('hidden');
+
+      filtered.forEach((item, index) => {
+        // Calculate percentages and styling for progress
+        const percent = Math.min(100, Math.max(0, (item.passed / 90) * 100));
+        let progressColor = 'bg-blue-500';
+        let statusBadgeHTML = '';
+
+        if (item.left <= 0) {
+          progressColor = 'bg-red-500';
+          statusBadgeHTML = `<span class="badge-status badge-expired"><i class="fa-solid fa-circle-xmark text-[10px]"></i> Hükümsüz</span>`;
+        } else if (item.left <= 15) {
+          progressColor = 'bg-amber-500';
+          statusBadgeHTML = `<span class="badge-status badge-warning"><i class="fa-solid fa-triangle-exclamation text-[10px]"></i> Kritik (${item.left} Gün)</span>`;
+        } else {
+          progressColor = 'bg-emerald-500';
+          statusBadgeHTML = `<span class="badge-status badge-active"><i class="fa-solid fa-check text-[10px]"></i> Aktif (${item.left} Gün)</span>`;
+        }
+
+        // Render Table Row (Desktop)
+        const tr = document.createElement('tr');
+        tr.className = 'table-row cursor-pointer';
+        tr.onclick = (e) => {
+          // If clicked the download link specifically, don't trigger the modal
+          if (e.target.closest('.pdf-link')) return;
+          openModal(item);
+        };
+        tr.innerHTML = `
+          <td class="px-6 py-4.5 font-bold font-mono text-slate-900 dark:text-slate-100">${item.sayi}</td>
+          <td class="px-6 py-4.5 text-slate-500 dark:text-slate-400 font-medium">${item.date}</td>
+          <td class="px-6 py-4.5 pr-8">
+            <p class="line-clamp-2 text-slate-700 dark:text-slate-300 font-semibold hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="${item.title}">
+              ${item.title}
+            </p>
+          </td>
+          <td class="px-6 py-4.5">
+            <div class="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+              <span>${statusBadgeHTML}</span>
+              <span class="font-mono text-slate-700 dark:text-slate-300">${item.passed}/90 Gün Geçti</span>
+            </div>
+            <div class="progress-bar-bg w-full">
+              <div class="progress-bar-fill ${progressColor}" style="width: ${percent}%"></div>
+            </div>
+          </td>
+          <td class="px-6 py-4.5 text-center">
+            <a href="${item.pdf}" target="_blank" class="pdf-link inline-flex w-9 h-9 items-center justify-center bg-slate-50 hover:bg-red-50 dark:bg-slate-800 dark:hover:bg-red-950/30 text-slate-600 hover:text-red-600 dark:text-slate-300 dark:hover:text-red-400 rounded-xl transition-all border border-slate-200/50 dark:border-slate-800">
+              <i class="fa-solid fa-file-pdf"></i>
+            </a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+
+        // Render Card (Mobile)
+        const card = document.createElement('div');
+        card.className = 'card-modern p-5 cursor-pointer flex flex-col gap-4';
+        card.onclick = (e) => {
+          if (e.target.closest('.pdf-link')) return;
+          openModal(item);
+        };
+        card.innerHTML = `
+          <div class="flex justify-between items-start gap-2">
+            <div>
+              <span class="text-xs font-bold font-mono bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-100/50 dark:border-blue-900/50">Sayı: ${item.sayi}</span>
+              <p class="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-1">${item.date}</p>
+            </div>
+            ${statusBadgeHTML}
+          </div>
+          
+          <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 line-clamp-3 leading-relaxed">
+            ${item.title}
+          </h4>
+
+          <div>
+            <div class="flex justify-between items-center text-[11px] font-bold text-slate-400 mb-1.5">
+              <span>Süre Gelişimi</span>
+              <span class="font-mono text-slate-700 dark:text-slate-300">${item.passed}/90 Gün Geçti</span>
+            </div>
+            <div class="progress-bar-bg w-full">
+              <div class="progress-bar-fill ${progressColor}" style="width: ${percent}%"></div>
+            </div>
+          </div>
+
+          <div class="flex gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <a href="${item.pdf}" target="_blank" class="pdf-link flex-1 bg-slate-50 dark:bg-slate-800/50 hover:bg-red-50 dark:hover:bg-red-950/20 text-slate-700 dark:text-slate-300 border border-slate-200/50 dark:border-slate-800 py-2 rounded-xl text-xs font-bold text-center flex items-center justify-center gap-1.5 transition-colors">
+              <i class="fa-solid fa-file-pdf text-red-500"></i> Resmi Gazete PDF
+            </a>
+          </div>
+        `;
+        cardContainer.appendChild(card);
+      });
+    }
+
+    // Modal Details functions
+    function openModal(item) {
+      const modal = document.getElementById('detailModal');
+      const inner = modal.querySelector('div');
+      
+      document.getElementById('modalSayi').textContent = `Sayı: ${item.sayi}`;
+      document.getElementById('modalTitle').textContent = item.title;
+      document.getElementById('modalDate').textContent = item.date;
+      document.getElementById('modalPassed').textContent = `${item.passed} Gün`;
+      document.getElementById('modalPdfLink').href = item.pdf;
+      
+      const badgeContainer = document.getElementById('modalBadge');
+      const progressText = document.getElementById('modalProgressText');
+      const progressBar = document.getElementById('modalProgressBar');
+      const percent = Math.min(100, Math.max(0, (item.passed / 90) * 100));
+
+      progressBar.style.width = `${percent}%`;
+      progressBar.className = 'progress-bar-fill'; // reset status classes
+
+      if (item.left <= 0) {
+        badgeContainer.innerHTML = `<span class="badge-status badge-expired"><i class="fa-solid fa-circle-xmark"></i> Hükümsüz</span>`;
+        progressText.textContent = `Süresi Doldu (Geçen: ${item.passed} Gün)`;
+        progressBar.classList.add('bg-red-500');
+      } else if (item.left <= 15) {
+        badgeContainer.innerHTML = `<span class="badge-status badge-warning"><i class="fa-solid fa-triangle-exclamation"></i> Kritik</span>`;
+        progressText.textContent = `${item.left} Gün Kaldı (${item.passed}/90)`;
+        progressBar.classList.add('bg-amber-500');
+      } else {
+        badgeContainer.innerHTML = `<span class="badge-status badge-active"><i class="fa-solid fa-check"></i> Aktif</span>`;
+        progressText.textContent = `${item.left} Gün Kaldı (${item.passed}/90)`;
+        progressBar.classList.add('bg-emerald-500');
+      }
+
+      modal.classList.remove('pointer-events-none', 'opacity-0');
+      inner.classList.remove('scale-95');
+      inner.classList.add('scale-100');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('detailModal');
+      const inner = modal.querySelector('div');
+      
+      modal.classList.add('pointer-events-none', 'opacity-0');
+      inner.classList.remove('scale-100');
+      inner.classList.add('scale-95');
+    }
+
+    // Close modal on clicking backdrop
+    document.getElementById('detailModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('detailModal')) {
+        closeModal();
+      }
+    });
 
     window.onload = loadData;
   </script>
