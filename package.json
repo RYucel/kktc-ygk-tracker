@@ -1,0 +1,12 @@
+{
+  "name": "kktc-ygk-tracker",
+  "version": "2.0.0",
+  "private": true,
+  "description": "KKTC Yasa Gücünde Kararnameler 90 gün takipçisi",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}
