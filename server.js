@@ -43,7 +43,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     const rel = url.pathname === '/' ? 'index.html' : normalize(url.pathname).replace(/^([/\\])+/, '');
-    if (rel.startsWith('..') || rel.startsWith('api') || rel.startsWith('node_modules')) throw Object.assign(new Error(), { code: 'ENOENT' });
+    if (rel.startsWith('..') || rel.startsWith('api') || rel.startsWith('node_modules') || rel.startsWith('tests')) throw Object.assign(new Error(), { code: 'ENOENT' });
     const body = await readFile(join(ROOT, rel));
     res.writeHead(200, { 'Content-Type': TYPES[extname(rel)] || 'application/octet-stream' });
     res.end(body);
